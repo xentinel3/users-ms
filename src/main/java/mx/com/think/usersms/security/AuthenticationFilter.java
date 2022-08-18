@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -64,7 +63,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                 .setSubject(userDetails.getUserId())
                 .setExpiration(new Date(System.currentTimeMillis() +
                         Long.parseLong(Objects.requireNonNull(environment.getProperty("token.expiration_time")))))
-                .signWith(SignatureAlgorithm.ES512, environment.getProperty("token.secret"))
+                .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
                 .compact();
         response.addHeader("token", token);
         response.addHeader("userId", userDetails.getUserId());
