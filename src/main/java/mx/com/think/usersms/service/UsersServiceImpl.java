@@ -5,10 +5,13 @@ import mx.com.think.usersms.data.UsersRepository;
 import mx.com.think.usersms.shared.UserDto;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -36,7 +39,22 @@ public class UsersServiceImpl implements UsersService {
       userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
       usersRepository.save(userEntity);
 
-      UserDto createdUser = modelMapper.map(userEntity, UserDto.class);
-      return createdUser;
+      return modelMapper.map(userEntity, UserDto.class);
+   }
+
+   @Override
+   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+      UserEntity user = usersRepository.findByEmail(username);
+      if (user == null) throw new UsernameNotFoundException(username);
+      return new User(user.getEmail(), user.getEncryptedPassword(), true, true, true, true, new ArrayList<>());
+   }
+
+   @Override
+   public UserDto getUserDetailsByEmail(String email) {
+      UserEntity user = usersRepository.findByEmail(email);
+      if (user == null) throw new UsernameNotFoundException(email);
+      ModelMapper model = new ModelMapper();
+      model.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+      return model.map(user, UserDto.class);
    }
 }
