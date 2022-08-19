@@ -35,7 +35,7 @@ public class UsersController {
 
     @GetMapping("/status/check")
     public String status(){
-        return "working at port" + environment.getProperty("local.server.port");
+        return "working at port " + environment.getProperty("local.server.port");
     }
 
     @PostMapping( consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE},
